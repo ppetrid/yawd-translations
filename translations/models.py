@@ -10,7 +10,7 @@ import utils
 
 class Language(models.Model):
     #Use name as primary key to avoid joins when retrieving Translation objects
-    name = models.CharField(choices=settings.LANGUAGES, max_length=7, primary_key=True)
+    name = models.CharField(choices=sorted(settings.LANGUAGES, key=lambda name: name[1]), max_length=7, primary_key=True)
     image = ElfinderField(optionset='image', start_path='languages')
     default = models.BooleanField(default=False)
 
