@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import ungettext, ugettext_lazy
 from models import Language
-from yawdadmin import admin_site
 
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'default')
@@ -33,4 +32,4 @@ class LanguageAdmin(admin.ModelAdmin):
         })
     delete_selected_lang.short_description = ugettext_lazy("Delete selected languages")
     
-admin_site.register(Language, LanguageAdmin)
+admin.site.register(Language, LanguageAdmin)
