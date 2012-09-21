@@ -32,7 +32,7 @@ def get_supported_languages():
 	
 	if not _supported:
 		from models import Language
-		_supported = Language.objects.values_list('name', flat=True)
+		_supported = list(Language.objects.values_list('name', flat=True))
 
 		#if no languages are set use the default language
 		if not _supported:
