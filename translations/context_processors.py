@@ -19,4 +19,3 @@ def languages(request):
         'default_lang': default,
         'clean_url' : clean_url
     }
-    

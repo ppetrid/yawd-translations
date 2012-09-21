@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.utils.translation import check_for_language
+from django.utils.encoding import smart_str 
 from django.utils.translation.trans_real import get_language_from_path
 
 _default = None
@@ -18,7 +19,7 @@ def get_default_language():
 	if _default is None:
 		try:
 			from models import Language
-			_default = Language.objects.get(default=True).name
+			_default = smart_str(Language.objects.get(default=True).name)
 		except:
 			_default = settings.LANGUAGE_CODE
 
@@ -32,7 +33,7 @@ def get_supported_languages():
 	
 	if not _supported:
 		from models import Language
-		_supported = list(Language.objects.values_list('name', flat=True))
+		_supported = [smart_str(l) for l in Language.objects.values_list('name', flat=True)]
 
 		#if no languages are set use the default language
 		if not _supported:
