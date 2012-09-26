@@ -1,0 +1,27 @@
+{% load i18n %}{% if error %}
+<div class="row-fluid alert alert-error">
+	<i class="icon-exclamation-sign"></i>
+	{{ error|safe }}
+</div>
+{% else %}
+	{% if warning %}
+	<div class="row-fluid alert">
+		<i class="icon-exclamation-sign"></i>
+		{{ warning|safe }}
+	</div>
+	{% endif %}
+	{% if lang_files %}
+		<h2>{% trans "Available files" %}</h2>
+		{% for lang_file in lang_files %}
+		<div class="row-fluid">
+		<span class="span6">{{lang_file}}</span>
+		<span class="span6">
+			<a class="btn btn-mini btn-info">
+				{% trans 'Edit'%}
+				<i class="icon-edit icon-white"></i>
+			</a>
+		</span>
+		</div>
+		{% endfor %}
+	{% endif %}
+{% endif %}

@@ -1,0 +1,52 @@
+{% extends "admin/base_site.html" %}{% load i18n %}
+
+{% block extrahead %}
+<script>
+(function($) {
+	$(document).ready( function() {
+		$('#generate-messages').click(function() {	
+			$.get($(this).attr('href'), function(data) {
+				$('#content-main').html(data);
+			});
+			return false;
+		});
+	});
+})(yawdadmin.jQuery);
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+
+<ul class="breadcrumb">
+    <li><a href="../../../../">{% trans 'Home' %}</a> <span class="divider">/</span></li>
+    <li><a href="../../../">{{ app_label|capfirst }}</a> <span class="divider">/</span></li>
+    <li><a href="../../">{{ module_name }}</a> <span class="divider">/</span></li>
+    <li><a href="../">{{ language }}</a> <span class="divider">/</span></li>
+    <li class="active">{{title}}</li>
+</ul>
+{% endblock %}
+
+{% block object-tools %}
+	{% if not error %}
+	<div class="row-fluid nav">
+		{% block object-tools-items %}
+			<div class="span2">
+				<a id="generate-messages" href="generate/" class="big-button">
+					<i class="processing-item"></i>
+					{% if warning %}
+					{% trans "Generate messages" %}
+					{% else %}
+					{% trans "Regenerate messages" %}
+					{% endif %}
+				</a>
+			</div>
+    	{% endblock %}
+	</div>
+	{% endif %}
+{% endblock %}
+
+{% block main-struct %}
+	<div id="content-main" class="container">
+	{% include "admin/includes/translation_messages_list.html" %}
+	</div>
+{% endblock %}
