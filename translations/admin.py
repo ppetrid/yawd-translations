@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.conf.urls import patterns, url
 from django.utils.translation import ungettext, ugettext_lazy
 from models import Language
-from views import TranslationMessagesView, GenerateTranslationMessagesView
+from views import TranslationMessagesView, GenerateTranslationMessagesView, TranslationMessagesEditView
 
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'default')
@@ -18,8 +18,9 @@ class LanguageAdmin(admin.ModelAdmin):
         """
         urls = super(LanguageAdmin, self).get_urls()
         my_urls = patterns('',
-            url(r'^(.+)/messages/$', TranslationMessagesView.as_view(), name="translations-messages-view"),
-            url(r'^(.+)/messages/generate/$', GenerateTranslationMessagesView.as_view(), name="generate-translations-messages-view")
+            url(r'^(.+)/messages/$', self.admin_site.admin_view(TranslationMessagesView.as_view()), name="translations-messages-view"),
+            url(r'^(.+)/messages/generate/$', self.admin_site.admin_view(GenerateTranslationMessagesView.as_view()), name="generate-translations-messages-view"),
+            url(r'^(.+)/messages/(.+)/$', self.admin_site.admin_view(TranslationMessagesEditView.as_view()), name="edit-translations-messages-view"),
         )
         return my_urls + urls
     

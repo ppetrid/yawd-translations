@@ -1,6 +1,8 @@
 {% extends "admin/change_form.html" %}{% load i18n %}
 
 {% block object-tools-items %}
+{% if perms.translations.view_translations %}
 <li><a href="messages/">{% trans "Translate messages" %}</a></li>
+{% endif %}
 {{block.super}}
 {% endblock %}

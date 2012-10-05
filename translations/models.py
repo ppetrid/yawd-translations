@@ -16,6 +16,10 @@ class Language(models.Model):
 
     class Meta:
         ordering = ['name']
+        permissions = (
+            ("view_translations", "Can see translation messages for a language"),
+            ("edit_translations", "Can edit the language's translation messages"),
+        )
 
     def save(self, *args, **kwargs):
         if self.default: #make sure only one default language exists

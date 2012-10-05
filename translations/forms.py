@@ -1,3 +1,4 @@
+from django import forms
 from django.forms.models import BaseInlineFormSet
 from models import Language
 
@@ -22,3 +23,6 @@ class BaseTranslationFormSet(BaseInlineFormSet):
         self.max_num = Language.objects.count()
 
         super(BaseTranslationFormSet, self).__init__(*args, **kwargs)
+        
+class PoFileForm(forms.Form):
+    po_content = forms.CharField(widget=forms.Textarea(attrs={'class' : 'textarea-full'}))

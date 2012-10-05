@@ -1,7 +1,8 @@
+import locale, os, sys
 from django.conf import settings
 from django.utils.translation import check_for_language
 from django.utils.encoding import smart_str 
-from django.utils.translation.trans_real import get_language_from_path
+from django.utils.translation.trans_real import get_language_from_path, to_locale
 
 _default = None
 _supported = []
@@ -27,7 +28,7 @@ def get_default_language():
 
 def get_supported_languages():
 	"""
-	This will retrieve the supported languages.
+	Retrieve the supported languages.
 	"""
 	global _supported
 	
@@ -80,3 +81,70 @@ def get_language_from_request(request, check_path=False):
 	#HTTP header and extract the language. This is replaced in our
 	#mechanism
 	return get_default_language()
+
+def compile_message_file(fn):
+	"""
+	Accepts a .po file path as argument and generates an appropriate .mo file.
+	This copies the needed functionality from the original compilemessages command
+	"""
+	
+	pf = os.path.splitext(fn)[0]
+	# Store the names of the .mo and .po files in an environment
+	# variable, rather than doing a string replacement into the
+	# command, so that we can take advantage of shell quoting, to
+	# quote any malicious characters/escaping.
+	# See http://cyberelk.net/tim/articles/cmdline/ar01s02.html
+	os.environ['djangocompilemo'] = pf + '.mo'
+	os.environ['djangocompilepo'] = pf + '.po'
+	if sys.platform == 'win32': # Different shell-variable syntax
+		cmd = 'msgfmt --check-format -o "%djangocompilemo%" "%djangocompilepo%"'
+	else:
+		cmd = 'msgfmt --check-format -o "$djangocompilemo" "$djangocompilepo"'
+	os.system(cmd)
+	
+def concat_message_files(files, fn):
+	"""
+	Accepts a list of po files and a target file and uses the
+	msgcat command to concat the files.
+	"""
+
+	files_str = ' '.join(files)
+
+	os.environ['djangosourcepo'] = files_str
+	os.environ['djangotargetpo'] = fn
+	
+	if sys.platform == 'win32': # Different shell-variable syntax
+		cmd = 'msgcat --use-first -o "%djangotargetpo%" %djangosourcepo%'
+	else:
+		cmd = 'msgcat --use-first -o "$djangotargetpo" $djangosourcepo'
+	os.system(cmd)
+	
+def reset_translations(lang, was_empty=False):
+	"""
+	Empty django's internal translations dictionary when a message translation
+	changes or the translations list is regenerated.
+	
+	If was_empty is set to True, the dictionary of mo files will also empty.
+	"""
+	from django.utils import translation
+	from django.utils.translation import trans_real
+	import gettext
+	
+	if lang in trans_real._translations:
+		del trans_real._translations[lang]
+	
+	gettext._translations = {}
+
+	if settings.LANGUAGE_CODE == lang:
+		trans_real._default = None
+	
+	#force current thread translations reload
+	current_lang = translation.get_language()
+	if current_lang == lang:
+		translation.activate(current_lang)
+
+	if was_empty:
+		from django.utils.translation.trans_real import _accepted
+		normalized = locale.locale_alias.get(to_locale(lang, True))
+		if normalized in _accepted:
+			del _accepted[normalized]

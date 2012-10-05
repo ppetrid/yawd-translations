@@ -27,7 +27,6 @@ class TranslationRegexURLResolver(LocaleRegexURLResolver):
 
     @property
     def regex(self):
-        language_code = get_language()
-        if language_code == get_default_language():
+        if get_language() == get_default_language():
             return re.compile(r'')
         return super(TranslationRegexURLResolver, self).regex
