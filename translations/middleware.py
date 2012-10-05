@@ -4,7 +4,7 @@ from django.middleware.locale import LocaleMiddleware
 from django.utils.cache import patch_vary_headers
 from django.utils import translation
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponsePermanentRedirect
 from utils import get_default_language, get_language_from_request
 from urls import TranslationRegexURLResolver
 
@@ -38,7 +38,12 @@ class TranslationMiddleware(LocaleMiddleware):
                 language_path = language_path + '/'
 
             if is_valid_path(language_path, urlconf):
-                return  HttpResponseRedirect("%s://%s/%s" % (
+                #we use a permanent redirect here.
+                #when changing the default language we need to let the world know
+                #that our links have permanently changed and transfer our seo juice 
+                #to the new url
+                #http://seo-hacker.com/301-302-redirect-affect-seo/
+                return  HttpResponsePermanentRedirect("%s://%s/%s" % (
                     request.is_secure() and 'https' or 'http',
                     request.get_host(), re.sub(r'^/%s/' % default, '', request.get_full_path())))
         
