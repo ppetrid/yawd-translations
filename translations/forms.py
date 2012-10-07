@@ -1,6 +1,7 @@
 from django import forms
 from django.forms.models import BaseInlineFormSet
 from models import Language
+from utils import get_supported_languages
 
 class BaseTranslationFormSet(BaseInlineFormSet):
     """
@@ -20,7 +21,7 @@ class BaseTranslationFormSet(BaseInlineFormSet):
         #provide initial data based on untranslated languages
         kwargs['initial'] = [ {'language' : x} for x in queryset]
         #should not allow more inlines than that of the number of languages
-        self.max_num = Language.objects.count()
+        self.max_num = len(get_supported_languages())
 
         super(BaseTranslationFormSet, self).__init__(*args, **kwargs)
         
