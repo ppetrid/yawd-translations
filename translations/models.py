@@ -22,22 +22,26 @@ class Language(models.Model):
         )
 
     def save(self, *args, **kwargs):
-        if self.default: #make sure only one default language exists
-            try: 
-                default = Language.objects.get(default=True)
-                if self != default:
-                    default.default = False
-                    default.save()
-            except Language.DoesNotExist:
-                pass
+        try:
+            default = Language.objects.get(default=True)
+            #check if the default language just changed
+            if self.default and self != default:
+                #make sure only one default language exists
+                default.default = False
+                default.save()
+                
+                #change the default language for this thread
+                clear_url_caches()
+                utils._default = self.name
 
-            ##Change the default language for this thread
-            clear_url_caches()
-            utils._default = self.name 
+        except Language.DoesNotExist:
+            #no default language was found
+            #force this as the default
+            self.default = True 
 
         super(Language, self).save(*args, **kwargs)
-        #this might produce a little overhead, but it's necessary
-        #since after model changes the state of _supported could be unpredicatble
+        #this might produce a little overhead, but it's necessary:
+        #the state of _supported could be unpredictable by now
         utils._supported = Language.objects.values_list('name', flat=True)
 
     def delete(self):
@@ -90,6 +94,10 @@ class Translatable(models.Model):
         return name
     
     def update_name(self, language=None, translation=None):
+        """
+        Updates the cached display name for this object. Typically, 
+        this will be called whenever a translation changes.
+        """
         cache.delete(self._get_cache_key(translation.language_id if translation else language))
         self.get_name(language=language, translation=translation)
         
@@ -112,15 +120,15 @@ class Translation(models.Model):
         self.translatable.update_name(translation=self)
         
 def pre_delete_language(sender, instance, using, **kwargs):
-    #admin actions make sure the default will not be deleted, so yawdcms does not directly need this
-    #this is here to prevent 3rd party code from accidentily deleting the default language  
+    #admin actions make sure the default will not be deleted,
+    #but this is still here to prevent 3rd party code from accidentily deleting the default language  
     if instance.default:
         raise Exception(_("Cannot delete the default language"))
 
 def post_delete_language(sender, instance, using, **kwargs):
     """
     Update the supported languages to ensure that 
-    a 404 will be raised when requestng the language's urls
+    a 404 will be raised when requesting the language's urls
     """
     utils._supported.remove(instance.name)
     
