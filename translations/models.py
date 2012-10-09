@@ -1,3 +1,4 @@
+import utils
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
@@ -6,7 +7,6 @@ from django.db import models
 from django.db.models.signals import pre_delete, post_delete
 from django.utils.translation import get_language, get_language_info, ugettext as _
 from elfinder.fields import ElfinderField
-import utils
 
 class Language(models.Model):
     #Use name as primary key to avoid joins when retrieving Translation objects
@@ -69,9 +69,9 @@ class Translatable(models.Model):
             return unicode(self.translations.get(language_id=language) if not translation else translation)
         except ObjectDoesNotExist:
             try: #attempt to show default translation
-                return u'%s (%s %s)' % (unicode(self.translations.get(language__default=True)), translation.ugettext('not translated in'), language)
+                return u'%s (%s %s)' % (unicode(self.translations.get(language__default=True)), _('not translated in'), language)
             except ObjectDoesNotExist:
-                return u'%s #%s (%s %s)' % (self._meta.verbose_name, self.id, translation.ugettext('not translated in'), language)
+                return u'%s #%s (%s %s)' % (self._meta.verbose_name, self.id, _('not translated in'), language)
             
     def get_name(self, language=None, translation=None):
         """
