@@ -1,8 +1,25 @@
 from django.contrib import admin
 from django.conf.urls import patterns, url
+from django.forms import HiddenInput
+from django.forms.models import modelformset_factory
 from django.utils.translation import ungettext, ugettext_lazy
 from models import Language
+from forms import BaseTranslationFormSet
 from views import TranslationMessagesView, GenerateTranslationMessagesView, TranslationMessagesEditView
+
+class TranslationInline(admin.StackedInline):
+    template = 'admin/edit_inline/translatable-inline.html'
+    can_delete = False
+    
+    def __init__(self, *args, **kwargs):
+        super(TranslationInline, self).__init__(*args, **kwargs)
+        self.formset = modelformset_factory(self.model, formset=BaseTranslationFormSet)
+    
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        formfield = super(TranslationInline, self).formfield_for_dbfield(db_field, **kwargs)
+        if db_field.name  == 'language':
+            formfield.widget = HiddenInput()
+        return formfield
 
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'default')

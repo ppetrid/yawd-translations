@@ -5,16 +5,18 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import clear_url_caches
 from django.db import models
 from django.db.models.signals import pre_delete, post_delete
-from django.utils.translation import get_language, get_language_info, ugettext as _
+from django.utils.translation import get_language, get_language_info, ugettext_lazy, ugettext as _
 from elfinder.fields import ElfinderField
 
 class Language(models.Model):
     #Use name as primary key to avoid joins when retrieving Translation objects
-    name = models.CharField(choices=sorted(settings.LANGUAGES, key=lambda name: name[1]), max_length=7, primary_key=True)
-    image = ElfinderField(optionset='image', start_path='languages')
-    default = models.BooleanField(default=False)
+    name = models.CharField(choices=sorted(settings.LANGUAGES, key=lambda name: name[1]), max_length=7, verbose_name=ugettext_lazy('Name'), primary_key=True)
+    image = ElfinderField(optionset='image', start_path='languages', verbose_name=ugettext_lazy('Image'))
+    default = models.BooleanField(default=False, verbose_name=ugettext_lazy('Default'))
 
     class Meta:
+        verbose_name = ugettext_lazy("Language")
+        verbose_name_plural = ugettext_lazy("Languages")
         ordering = ['name']
         permissions = (
             ("view_translations", "Can see translation messages for a language"),
