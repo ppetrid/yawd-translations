@@ -8,6 +8,15 @@
 	</div>
 {% endif %}
 
+
+{% if not langs %}
+	<div class="alert alert-error">
+		<i class="icon-exclamation-sign"></i>
+		<strong>{% trans "Error!" %}</strong>
+		{% trans "Please set at least one language to manage translatable objects." %}
+	</div>
+{% else %}
+
 <div id="{{ inline_admin_formset.formset.prefix }}-tabs">
 	<ul id="language-codes" class="nav nav-tabs">
 		{% for inline_admin_form in inline_admin_formset %}
@@ -25,14 +34,6 @@
 			</li>
 	{% endif %}{% endfor %}
 	</ul>
-
-	{% if not langs %}
-		<div class="alert alert-error">
-		<i class="icon-exclamation-sign"></i>
-		<strong>{% trans "Error!" %}</strong>
-		{% trans "Please set at least one language to manage translatable objects." %}
-		</div>
-	{% endif %}
 
 	<div class="tab-content">
 		{% for inline_admin_form in inline_admin_formset %}
@@ -70,4 +71,5 @@
 
 	})(yawdadmin.jQuery);
 </script>
+{% endif %}
 </div>
