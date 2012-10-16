@@ -1,4 +1,3 @@
-import utils
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
@@ -7,6 +6,7 @@ from django.db import models
 from django.db.models.signals import pre_delete, post_delete
 from django.utils.translation import get_language, get_language_info, ugettext_lazy, ugettext as _
 from elfinder.fields import ElfinderField
+import utils
 
 class Language(models.Model):
     #Use name as primary key to avoid joins when retrieving Translation objects
@@ -22,24 +22,29 @@ class Language(models.Model):
             ("view_translations", "Can see translation messages for a language"),
             ("edit_translations", "Can edit the language's translation messages"),
         )
+        
+    def _default_changed(self):
+        #change the default language for this thread
+        clear_url_caches()
+        utils._default = self.name
 
     def save(self, *args, **kwargs):
         try:
+            #not using get_default_language() here, as this method might return
+            #the settings.LANGUAGE_CODE setting if no db languages exist
             default = Language.objects.get(default=True)
             #check if the default language just changed
             if self.default and self != default:
                 #make sure only one default language exists
                 default.default = False
                 default.save()
-                
-                #change the default language for this thread
-                clear_url_caches()
-                utils._default = self.name
+                self._default_changed()
 
         except Language.DoesNotExist:
             #no default language was found
             #force this as the default
-            self.default = True 
+            self.default = True
+            self._default_changed()
 
         super(Language, self).save(*args, **kwargs)
         #this might produce a little overhead, but it's necessary:
