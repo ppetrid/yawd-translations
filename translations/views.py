@@ -106,8 +106,9 @@ class GenerateTranslationMessagesView(TemplateView):
                         original_file_path = os.path.join(original_path, file_)
                         file_name = '%s-%s' % (app_name, file_)
                         
-                        #copy file 
-                        shutil.copy2(original_file_path, os.path.join(self.po_path, file_name))
+                        #copy file
+                        if self.request.GET.get('delete', 0) or not app_name.startswith('django.contrib'):
+                            shutil.copy2(original_file_path, os.path.join(self.po_path, file_name))
                         
                         #unlink updated file
                         if not app_name.startswith('django.contrib'):
@@ -172,9 +173,12 @@ class TranslationMessagesView(TemplateView):
         
         context['title'] = _('Translate Static Messages')
         context['language'] = self.language
-        context['app_label'] = opts.app_label
-        context['module_name'] = capfirst(force_unicode(opts.verbose_name_plural))
+        context['opts'] = opts
         
+        #add permission context variables
+        context['has_change_permission'] = self.request.user.has_perm(opts.app_label + '.' + opts.get_change_permission())
+        context['has_change_object_permission'] = self.request.user.has_perm(opts.app_label + '.' + opts.get_change_permission(), self.language.pk)
+
         if not settings.LOCALE_PATHS:
             context['error'] = _('<b>Configuration error!</b> Please set the LOCALE_PATHS project setting to allow the creation of a unified messages catalog.')
             return context
@@ -243,17 +247,17 @@ class TranslationMessagesEditView(FormView):
         
         context['title'] = u'%s %s' % (_('Edit'), self.po_file)
         context['language'] = self.language
-        context['app_label'] = opts.app_label
-        context['module_name'] = capfirst(force_unicode(opts.verbose_name_plural))
-        
-        #these context variable are used bu the 'submit_row' admin tag
+        context['opts'] = opts
+
+        #add permission context variables
         context['has_delete_permission'] = False
         context['has_add_permission'] = False
-        context['has_change_permission'] = True
+        context['has_change_permission'] = self.request.user.has_perm(opts.app_label + '.' + opts.get_change_permission())
+        context['has_change_object_permission'] = self.request.user.has_perm(opts.app_label + '.' + opts.get_change_permission(), self.language.pk)
+        
         context['change'] = True
         context['is_popup'] = False
-        context['save_as']= False
-        context['opts'] = opts
+        context['save_as'] = False
         
         return context
 
