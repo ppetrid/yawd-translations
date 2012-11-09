@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import clear_url_caches
 from django.db import models
 from django.db.models.signals import pre_delete, post_delete
+from django.utils.encoding import smart_str 
 from django.utils.translation import get_language, get_language_info, ugettext_lazy, ugettext as _
 from elfinder.fields import ElfinderField
 import utils
@@ -11,7 +12,7 @@ import utils
 class Language(models.Model):
     #Use name as primary key to avoid joins when retrieving Translation objects
     name = models.CharField(choices=sorted(settings.LANGUAGES, key=lambda name: name[1]), max_length=7, verbose_name=ugettext_lazy('Name'), primary_key=True)
-    image = ElfinderField(optionset='image', start_path='languages', verbose_name=ugettext_lazy('Image'))
+    image = ElfinderField(optionset='image', start_path='languages', verbose_name=ugettext_lazy('Image'), blank=True)
     default = models.BooleanField(default=False, verbose_name=ugettext_lazy('Default'))
 
     class Meta:
@@ -49,7 +50,7 @@ class Language(models.Model):
         super(Language, self).save(*args, **kwargs)
         #this might produce a little overhead, but it's necessary:
         #the state of _supported could be unpredictable by now
-        utils._supported = Language.objects.values_list('name', flat=True)
+        utils._supported = [smart_str(l) for l in Language.objects.values_list('name', flat=True)]
 
     def delete(self):
         """
@@ -137,6 +138,8 @@ def post_delete_language(sender, instance, using, **kwargs):
     Update the supported languages to ensure that 
     a 404 will be raised when requesting the language's urls
     """
+    #generate supported languages in case they are not initialized
+    utils.get_supported_languages()
     utils._supported.remove(instance.name)
     
 pre_delete.connect(pre_delete_language, sender=Language, dispatch_uid='language-pre-delete')
