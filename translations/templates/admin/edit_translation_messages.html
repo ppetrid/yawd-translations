@@ -1,23 +1,47 @@
-{% extends "admin/base_site.html" %}{% load i18n admin_modify %}
+{% extends "admin/base_site.html" %}{% load i18n admin_modify admin_urls static %}{% load url from future %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />{% endblock %}
 
 {% block breadcrumbs %}
-<ul class="breadcrumb">
-    <li><a href="../../../../../">{% trans 'Home' %}</a> <span class="divider">/</span></li>
-    <li><a href="../../../../">{{ app_label|capfirst }}</a> <span class="divider">/</span></li>
-    <li><a href="../../../">{{ module_name }}</a> <span class="divider">/</span></li>
-    <li><a href="../../">{{ language }}</a> <span class="divider">/</span></li>
-    <li><a href="../">{% trans 'Translate Static Messages' %}</a> <span class="divider">/</span></li>
-    <li class="active">{{title}}</li>
-</ul>
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+	&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_label|capfirst|escape }}</a>
+	&rsaquo; {% if has_change_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+    &rsaquo; {% if has_change_object_permission %}<a href="{% url opts|admin_urlname:'change' language.pk %}">{{ language }}</a>{% else %}{{ language }}{% endif %}
+    &rsaquo; {% if perms.translations.view_translations %}<a href="{% url 'admin:translations-messages-view' language.pk %}">{% trans 'Translate Static Messages' %}</a>{% else %}{% trans 'Translate Static Messages' %}{% endif %}
+    &rsaquo; {{title}}
+</div>
 {% endblock %}
 
-{% block main-struct %}
-	<section id="content-main">
-			{% comment %}<div class="alert">{% trans 'Translate and save the following messages.' %}</div>{% endcomment %}
-			<form class="form-horizontal form-inline" action="" method="post" >
-				{% csrf_token %}
-				{% include 'admin/includes/base_form.html' %}
-				{% submit_row %}
-			</form>
-	</section>
+{% block content %}
+	<div id="content-main">
+		<div class="system-message">{% trans 'Translate and save the following messages.' %}</div>
+		<form class="form-horizontal form-inline" action="" method="post" >
+			{% csrf_token %}
+			<fieldset class="module aligned">
+			    {{ form.errors }}
+			    {% for field in form %}
+			        <div class="form-row{% if form.fields|length_is:'1' and form.errors %} errors{% endif %}{% for field in form %}{% if field.name %} field-{{ field.name }}{% endif %}{% endfor %}">
+			        	<div>
+						{{ field.errors }}
+						{% if field.is_checkbox %}
+			            	{{ field }}{{ field.label_tag }}
+						{% else %}
+							{{ field.label_tag }}
+							{% if field.is_readonly %}
+								<p>{{ field.contents }}</p>
+							{% else %}
+								{{ field }}
+							{% endif %}
+						{% endif %}
+						{% if field.help_text %}
+							<p class="help">{{ field.help_text|safe }}</p>
+						{% endif %}
+						</div>
+			        </div>
+			    {% endfor %}
+			</fieldset>
+			{% submit_row %}
+		</form>
+	</div>
 {% endblock %}
