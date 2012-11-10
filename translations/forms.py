@@ -11,11 +11,13 @@ class BaseTranslationFormSet(BaseInlineFormSet):
         #calculate a queryset that retrieves all non-translated languages
         #for this instance 
         if 'instance' in kwargs and kwargs['instance']:
+            #translations.all() is already prefetched, so we iterate over it to avoid the join
             queryset = Language.objects.exclude(
-                name__in=kwargs['instance'].translations.values_list(
-                    'language_id', flat=True)).values_list(
+                name__in=[l.language_id for l in kwargs['instance'].translations.all()]).values_list(
                         'name', flat=True)
         else:
+            #we do not use get_supported_language as this method
+            #might return the default django LANGUAGE setting.
             queryset = Language.objects.values_list('name', flat=True)
 
         #provide initial data based on untranslated languages

@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import clear_url_caches
 from django.db import models
@@ -7,6 +6,7 @@ from django.db.models.signals import pre_delete, post_delete
 from django.utils.encoding import smart_str 
 from django.utils.translation import get_language, get_language_info, ugettext_lazy, ugettext as _
 from elfinder.fields import ElfinderField
+from managers import TranslatableManager
 import utils
 
 class Language(models.Model):
@@ -76,53 +76,58 @@ class Language(models.Model):
         return get_language_info(self.name)['name']
 
 class Translatable(models.Model):
+    """
+    This model should be subclassed by models that need multilingual
+    support.
+    
+    A Translatable object should only define members
+    that are **common** to all languages. To define multilingual
+    fields, a subclass of the :class:`translations.models.Translation`
+    model must be implemented. 
+    """
+    objects = TranslatableManager()
+    
     class Meta:
-        abstract = True
-        
-    def _get_cache_key(self, language):
-        return '%s::%s::%s' % (self.__class__.__name__, self.id, language)
-    
-    def _get_name(self, language, translation):
-        """
-        Calculate the Translatable object's translation name.
-        """
-        try:
-            return unicode(self.translations.get(language_id=language) if not translation else translation)
-        except ObjectDoesNotExist:
-            try: #attempt to show default translation
-                return u'%s (%s %s)' % (unicode(self.translations.get(language__default=True)), _('not translated in'), language)
-            except ObjectDoesNotExist:
-                return u'%s #%s (%s %s)' % (self._meta.verbose_name, self.id, _('not translated in'), language)
-            
-    def get_name(self, language=None, translation=None):
-        """
-        Get the Translatable object's display name for a given
-        language or translation.
-        """
+        abstract = True        
 
+    def get_name(self, language_id=None):
+        """
+        Get the related :class:`translations.models.Translation`
+        object's display name for a given ``language``.
+        """
         #use the current language if not explicitly set
-        if not language:
-            language = translation.language_id if translation else get_language()
-            
-        key = self._get_cache_key(language)
+        translation = unicode(self.translation(language_id))
+        if translation:
+            return translation
 
-        name = cache.get(key)
+        #attempt to show default translation
+        translation = unicode(self.translation(get_default_language()))  
+        if translation:
+            return u'%s (%s %s)' % (translation, _('not translated in'), language_id)
+        else:
+            return u'%s #%s (%s %s)' % (self._meta.verbose_name, self.id, _('not translated in'), language_id)
 
-        if not name: #not in cache
-            name = self._get_name(language, translation)
-            cache.set(key, name)
-
-        return name
-    
-    def update_name(self, language=None, translation=None):
+    def translation(self, language_id=None):
         """
-        Updates the cached display name for this object. Typically, 
-        this will be called whenever a translation changes.
+        Get translation for the language ``language_id``. If no argument
+        is given, return the current language translation.
+        
+        Always use this method if you need to access a translation,
+        since it does not generate extra queries.
         """
-        cache.delete(self._get_cache_key(translation.language_id if translation else language))
-        self.get_name(language=language, translation=translation)
+        if not language_id:
+            language_id = get_language()
+        #using prefetched translations
+        for l in self.translations.all():
+            if l.language_id == language_id:
+                return l
         
     def __unicode__(self):
+        """
+        Default implementation returns the unicode representation of
+        the related :class:`translations.models.Translation` object
+        for the current language.
+        """
         return self.get_name()
         
 class Translation(models.Model):
@@ -130,35 +135,6 @@ class Translation(models.Model):
     
     class Meta:
         abstract = True
-    
-    @property
-    def translatable(self):
-        """
-        This property must be overriden in the model subclasses.
-        It provides direct access to the
-        :class:`translations.models.Translatable` object.
-        
-        Return::
-            a member of this class, that points to a model subclassing
-            the :class:`translations.models.Translatable` model.
-
-        Example implementation:
-        .. code-block::    python
-            def MyTranslation(Translation):
-                ...
-                mytrans = models.ForeignKey(MyTranslatable, related_name='translations')
-                ...
-                
-                @property
-                def translatable(self):
-                    return self.mytrans
-        """
-        raise NotImplementedError
-  
-    def save(self):
-        super(Translation, self).save()
-        #update the display name for this language
-        self.translatable.update_name(translation=self)
         
 def pre_delete_language(sender, instance, using, **kwargs):
     #admin actions make sure the default will not be deleted,
