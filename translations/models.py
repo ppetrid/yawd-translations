@@ -10,6 +10,19 @@ from elfinder.fields import ElfinderField
 import utils
 
 class Language(models.Model):
+    """
+    This model stores the project's available languages. A user may edit
+    languages from the admin interface. At least one language
+    must always be stored in the database. One (and only one) language
+    must always be set as the 'default'. Methods of this model and other
+    aspects of yawd-translations guarantee that these constraints are
+    always met.
+    
+    The languages among which a user may choose are those defined in the
+    `LANGUAGES <https://docs.djangoproject.com/en/dev/ref/settings/#languages>`_
+    django setting. 
+    """
+    
     #Use name as primary key to avoid joins when retrieving Translation objects
     name = models.CharField(choices=sorted(settings.LANGUAGES, key=lambda name: name[1]), max_length=7, verbose_name=ugettext_lazy('Name'), primary_key=True)
     image = ElfinderField(optionset='image', start_path='languages', verbose_name=ugettext_lazy('Image'), blank=True)
@@ -120,6 +133,26 @@ class Translation(models.Model):
     
     @property
     def translatable(self):
+        """
+        This property must be overriden in the model subclasses.
+        It provides direct access to the
+        :class:`translations.models.Translatable` object.
+        
+        Return::
+            a member of this class, that points to a model subclassing
+            the :class:`translations.models.Translatable` model.
+
+        Example implementation:
+        .. code-block::    python
+            def MyTranslation(Translation):
+                ...
+                mytrans = models.ForeignKey(MyTranslatable, related_name='translations')
+                ...
+                
+                @property
+                def translatable(self):
+                    return self.mytrans
+        """
         raise NotImplementedError
   
     def save(self):
