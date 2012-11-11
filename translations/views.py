@@ -72,55 +72,65 @@ class GenerateTranslationMessagesView(TemplateView):
             mod = import_module(app_name)
             mod_root = os.path.dirname(mod.__file__)
 
+            if not os.path.exists(os.path.join(mod_root, 'locale')):
+                continue
+            
             original_path = os.path.join(mod_root, 'locale', to_locale(self.language.name), 'LC_MESSAGES')
-            if os.path.exists(original_path):
-                
+            if not os.path.exists(original_path):
                 if not app_name.startswith('django.contrib'):
-                    #move original files to a temp file
-                    #and copy the project-wise files to the appropriate directory 
-                    for file_ in list(os.listdir(original_path)):
-                        if file_.endswith('.po'):
-                            application_file = os.path.join(original_path, file_)
-                            yawdtrans_file = os.path.join(self.po_path, '%s-%s' % (app_name, file_))
-                            
-                            #backup original file
-                            shutil.copy2(application_file, 
-                                os.path.join(original_path, 'original-%s' % file_))
-                            
-                            #replace original file with the yawd version
-                            #so that it gets updated
-                            if os.path.exists(yawdtrans_file):
-                                was_empty = False
-                                shutil.copy2(yawdtrans_file, application_file)
-
-                    #makemessages excluding the core applications
-                    os.chdir(mod_root)
-                    for key, value in domain_dict.items():
-                        make_messages(locale=self.locale, domain=key, extensions=handle_extensions(value), verbosity=0)
-                    os.chdir(curr_dir)
-
-                #iterate over the availale po files
+                    try: #try to create language directory for the app
+                        os.makedirs(original_path)
+                    except:
+                        continue
+                else:
+                    continue
+            
+            if not app_name.startswith('django.contrib'):
+                #move original files to a temp file
+                #and copy the project-wise files to the appropriate directory 
                 for file_ in list(os.listdir(original_path)):
-                    if not file_.startswith('original-') and file_.endswith('.po'):
+                    if file_.endswith('.po'):
+                        application_file = os.path.join(original_path, file_)
+                        yawdtrans_file = os.path.join(self.po_path, '%s-%s' % (app_name, file_))
+                        
+                        #backup original file
+                        shutil.copy2(application_file, 
+                            os.path.join(original_path, 'original-%s' % file_))
+                        
+                        #replace original file with the yawd version
+                        #so that it gets updated
+                        if os.path.exists(yawdtrans_file):
+                            was_empty = False
+                            shutil.copy2(yawdtrans_file, application_file)
 
-                        original_file_path = os.path.join(original_path, file_)
-                        file_name = '%s-%s' % (app_name, file_)
-                        
-                        #copy file
-                        if self.request.GET.get('delete', 0) or not app_name.startswith('django.contrib'):
-                            shutil.copy2(original_file_path, os.path.join(self.po_path, file_name))
-                        
-                        #unlink updated file
-                        if not app_name.startswith('django.contrib'):
-                            os.unlink(original_file_path)
-                        
-                        lang_files.append(file_name)
-                
-                if not app_name.startswith('django.contrib'):
-                    for file_ in os.listdir(original_path):
-                        #put back the original application files
-                        if file_.startswith('original-') and file_.endswith('.po'):
-                            shutil.move(os.path.join(original_path, file_), os.path.join(original_path, file_.replace('original-','')))
+                #makemessages excluding the core applications
+                os.chdir(mod_root)
+                for key, value in domain_dict.items():
+                    make_messages(locale=self.locale, domain=key, extensions=handle_extensions(value), verbosity=0)
+                os.chdir(curr_dir)
+
+            #iterate over the availale po files
+            for file_ in list(os.listdir(original_path)):
+                if not file_.startswith('original-') and file_.endswith('.po'):
+
+                    original_file_path = os.path.join(original_path, file_)
+                    file_name = '%s-%s' % (app_name, file_)
+                    
+                    #copy file
+                    if self.request.GET.get('delete', 0) or not app_name.startswith('django.contrib'):
+                        shutil.copy2(original_file_path, os.path.join(self.po_path, file_name))
+                    
+                    #unlink updated file
+                    if not app_name.startswith('django.contrib'):
+                        os.unlink(original_file_path)
+                    
+                    lang_files.append(file_name)
+            
+            if not app_name.startswith('django.contrib'):
+                for file_ in os.listdir(original_path):
+                    #put back the original application files
+                    if file_.startswith('original-') and file_.endswith('.po'):
+                        shutil.move(os.path.join(original_path, file_), os.path.join(original_path, file_.replace('original-','')))
         
         #concat all messages in a single .po file for each domain
         for domain in domain_dict:
