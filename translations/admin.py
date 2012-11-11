@@ -9,7 +9,6 @@ from views import TranslationMessagesView, GenerateTranslationMessagesView, Tran
 
 class TranslationInline(admin.StackedInline):
     template = 'admin/edit_inline/translatable-inline.html'
-    can_delete = False
     
     def __init__(self, *args, **kwargs):
         super(TranslationInline, self).__init__(*args, **kwargs)
