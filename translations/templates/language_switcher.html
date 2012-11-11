@@ -1,0 +1,4 @@
+{% for dict in urls %}
+<a href="{{dict.url}}">{% if not dict.language.image.url %}{{dict.language.get_name_display}}{% else %}
+	<img src="{{dict.language.image.url}}" alt="{{dict.language.get_name_display}}" title="{{dict.language.get_name_display}}" />{% endif %}</a>&#xa0;
+{% endfor %}
