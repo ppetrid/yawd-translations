@@ -1,0 +1,20 @@
+{% load translations_tags i18n %}{% load url from future %}<!DOCTYPE html>
+<html>
+	<head>
+		<title>{% trans 'yawd-translations example project' %}</title>
+	</head>
+	<body>
+		<h1><a href="{% url 'index-view' %}" style="color: #449999; text-decoration: none;">{% trans 'yawd-translations example' %}</a></h1>
+		<div class="language_switcher">{% translation_urls %}</div>
+		<h2>{% trans 'Pages' %}</h2>
+		<ul style="list-style: none; padding: 0;">
+		{% for object in object_list %}{% if object.translation %}
+			<li style="background-color: #f2f2f2; border-radius: 8px; padding: 10px; margin-bottom: 15px;">
+				<h3>{{object}}</h3>
+				<p>{{object.translation.content|truncatewords:20}}</p>
+				<a style="color: #449999;" href="{{object.get_absolute_url}}">{% trans "Read more" %}</a>
+			</li>
+		{% endif %}{% endfor %}
+		</ul>
+	</body>
+</html>

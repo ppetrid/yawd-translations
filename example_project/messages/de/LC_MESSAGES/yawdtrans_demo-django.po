@@ -1,0 +1,39 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-11-11 05:48-0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: templates/detail.html:4 templates/index.html:4
+msgid "yawd-translations example project"
+msgstr "yawd-translations Beispiel-Projekt"
+
+#: templates/detail.html:7 templates/index.html:7
+msgid "yawd-translations example"
+msgstr "yawd-translations  Beispiel"
+
+#: templates/detail.html:9
+msgid "Page details"
+msgstr "Seiten-info"
+
+#: templates/index.html:9
+msgid "Pages"
+msgstr "Seiten"
+
+#: templates/index.html:15
+msgid "Read more"
+msgstr "Lesen Sie mehr"

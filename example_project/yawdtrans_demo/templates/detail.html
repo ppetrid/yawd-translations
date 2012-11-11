@@ -1,0 +1,15 @@
+{% load translations_tags i18n %}{% load url from future %}<!DOCTYPE html>
+<html>
+	<head>
+		<title>{% trans 'yawd-translations example project' %}</title>
+	</head>
+	<body>
+		<h1><a href="{% url 'index-view' %}" style="color: #449999; text-decoration: none;">{% trans 'yawd-translations example' %}</a></h1>
+		<div class="language_switcher">{% translation_urls object %}</div>
+		<h2>{% trans 'Page details' %}</h2>
+		<div style="background-color: #f2f2f2; border-radius: 8px; padding: 10px;">
+			<h3>{{object}}</h3>
+			<p>{{object.translation.content}}</p>
+		</div>
+	</body>
+</html>

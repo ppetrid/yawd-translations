@@ -213,7 +213,7 @@ class TranslationMessagesEditView(FormView):
     
     def dispatch(self, request, *args, **kwargs):
         """
-        Overidden dispatch method to check if user has the right to edit
+        Overridden dispatch method to check if user has the right to edit
         the .po file.
         """
         
@@ -224,7 +224,7 @@ class TranslationMessagesEditView(FormView):
     
     def get_initial(self):
         """
-        Attempt to load the po file and put its contents in the form's
+        Attempt to load the .po file and put its contents in the form's
         initial data
         """
 
@@ -295,7 +295,6 @@ class TranslationMessagesEditView(FormView):
             if not has_bom(uni_django_path):
                 compile_message_file(uni_django_path)
 
-                
             #reset the cached translation messages so that
             #we do not need to restart the web server
             reset_translations(self.language.name)
