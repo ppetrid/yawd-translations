@@ -4,7 +4,7 @@ from django.forms import HiddenInput
 from django.forms.models import modelformset_factory
 from django.utils.translation import ungettext, ugettext_lazy
 from models import Language
-from forms import BaseTranslationFormSet, LanguageForm
+from forms import BaseTranslationFormSet
 from views import TranslationMessagesView, GenerateTranslationMessagesView, TranslationMessagesEditView
 
 class TranslationInline(admin.StackedInline):
@@ -23,7 +23,7 @@ class TranslationInline(admin.StackedInline):
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'default')
     actions=['delete_selected_lang']
-    form = LanguageForm
+    fields = ('name', 'image', 'default')
     
     def get_urls(self):
         """
@@ -47,6 +47,14 @@ class LanguageAdmin(admin.ModelAdmin):
         actions = super(LanguageAdmin, self).get_actions(request)
         del actions['delete_selected']
         return actions
+    
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Override to make certain language name readonly if this is a change request.
+        """
+        if obj is not None:
+            return self.readonly_fields + ('name',)
+        return self.readonly_fields
 
     def delete_selected_lang(self, request, queryset):
         queryset = queryset.exclude(default=True)
