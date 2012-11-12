@@ -26,6 +26,16 @@ class BaseTranslationFormSet(BaseInlineFormSet):
         self.max_num = len(get_supported_languages())
 
         super(BaseTranslationFormSet, self).__init__(*args, **kwargs)
+
+class LanguageForm(forms.ModelForm):
+    
+    def __init__(self, *args, **kwargs):
+        super(LanguageForm, self).__init__(*args, **kwargs)
+        if 'instance' in kwargs and kwargs['instance']:
+            self.fields['name'].widget.attrs['disabled'] = 'disabled'
+            
+    class Meta:
+        model = Language
         
 class PoFileForm(forms.Form):
     po_content = forms.CharField(widget=forms.Textarea(attrs={'class' : 'textarea-full'}))

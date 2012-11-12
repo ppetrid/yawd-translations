@@ -4,7 +4,7 @@ from django.forms import HiddenInput
 from django.forms.models import modelformset_factory
 from django.utils.translation import ungettext, ugettext_lazy
 from models import Language
-from forms import BaseTranslationFormSet
+from forms import BaseTranslationFormSet, LanguageForm
 from views import TranslationMessagesView, GenerateTranslationMessagesView, TranslationMessagesEditView
 
 class TranslationInline(admin.StackedInline):
@@ -23,9 +23,7 @@ class TranslationInline(admin.StackedInline):
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'default')
     actions=['delete_selected_lang']
-    #yawdcms-specific metas
-    order = 100
-    separator = True
+    form = LanguageForm
     
     def get_urls(self):
         """
