@@ -25,7 +25,7 @@ class Language(models.Model):
     
     #Use name as primary key to avoid joins when retrieving Translation objects
     name = models.CharField(choices=sorted(settings.LANGUAGES, key=lambda name: name[1]), max_length=7, verbose_name=ugettext_lazy('Name'), primary_key=True)
-    image = ElfinderField(optionset='image', start_path='languages', verbose_name=ugettext_lazy('Image'), blank=True)
+    image = ElfinderField(optionset='image', start_path='languages', verbose_name=ugettext_lazy('Image'), blank=True, null=True)
     default = models.BooleanField(default=False, verbose_name=ugettext_lazy('Default'))
 
     class Meta:
