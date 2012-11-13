@@ -24,6 +24,7 @@ class BaseTranslationFormSet(BaseInlineFormSet):
         kwargs['initial'] = [ {'language' : x} for x in queryset]
         #should not allow more inlines than that of the number of languages
         self.max_num = len(get_supported_languages())
+        self.extra = len(kwargs['initial']) 
 
         super(BaseTranslationFormSet, self).__init__(*args, **kwargs)
         

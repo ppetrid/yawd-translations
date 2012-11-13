@@ -10,8 +10,7 @@
 		{% trans "Please set at least one language to manage translatable objects." %}
 	</p>
 {% else %}
-{% for inline_admin_form in inline_admin_formset %}
-	{% if not forloop.last %}
+{% for inline_admin_form in inline_admin_formset %}{% if not forloop.last %}
 		<div class="inline-related" id="{{ inline_admin_formset.formset.prefix }}-{{ forloop.counter0 }}">
 			<h3>
 				<a href="#"  rel="nofollow" class="inline-related-switcher"{% with index=forloop.counter|stringformat:"s" %}{% if inline_admin_formset.formset.errors|slice:index|last %} style="color: red;"{% endif %}{% endwith %} >
@@ -20,15 +19,12 @@
 				{% if inline_admin_formset.formset.can_delete and inline_admin_form.original %}<span class="delete">{{ inline_admin_form.deletion_field.field }} {{ inline_admin_form.deletion_field.label_tag }}</span>{% endif %}
 	 		</h3>
 	 		<div class="inline-related-content{% if not forloop.first %}" style="display: none;{% else %} visible{% endif %}">
-			{% if inline_admin_form.form.non_field_errors %}{{ inline_admin_form.form.non_field_errors }}{% endif %}
-			{% for fieldset in inline_admin_form %}
-				{% include "admin/includes/fieldset-with-hidden-language.html" %}
-			{% endfor %}
-			{% if inline_admin_form.has_auto_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
-			{{ inline_admin_form.fk_field.field }}
+				{% if inline_admin_form.form.non_field_errors %}{{ inline_admin_form.form.non_field_errors }}{% endif %}
+				{% for fieldset in inline_admin_form %}{% include "admin/includes/fieldset-with-hidden-language.html" %}{% endfor %}
+				{% if inline_admin_form.has_auto_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
+				{{ inline_admin_form.fk_field.field }}
 			</div>
-		</div>
-	{% endif %}
+		</div>{% endif %}
 {% endfor %}
 
 <script>
@@ -36,7 +32,8 @@
 	
 		var cont = $("#{{ inline_admin_formset.formset.prefix }}-group");
 		cont.append(cont.children(".inline-related").detach().sort(function(a, b) {
-			return a.children[0].children[0].children[0].textContent > b.children[0].children[0].children[0].textContent;
+			if (a.children[0].children[0].children[0].textContent.toLowerCase() > b.children[0].children[0].children[0].textContent.toLowerCase()) return 1;
+			return -1;
 		}));
 
 		$('.inline-related-switcher').click(function() {

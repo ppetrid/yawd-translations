@@ -105,7 +105,7 @@ class Translatable(models.Model):
         if translation:
             return u'%s (%s %s)' % (translation, _('not translated in'), language_id)
         else:
-            return u'%s #%s (%s %s)' % (self._meta.verbose_name, self.id, _('not translated in'), language_id)
+            return u'%s #%s (%s %s)' % (self._meta.verbose_name, self.pk, _('not translated in'), language_id)
 
     def translation(self, language_id=None):
         """
