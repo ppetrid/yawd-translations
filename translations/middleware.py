@@ -5,7 +5,7 @@ from django.http import HttpResponsePermanentRedirect
 from django.middleware.locale import LocaleMiddleware
 from django.utils.cache import patch_vary_headers
 from django.utils import translation
-from utils import get_default_language, get_language_from_request
+from utils import get_default_language, get_language_from_request, get_supported_languages
 from urls import TranslationRegexURLResolver
 
 class TranslationMiddleware(LocaleMiddleware):
@@ -19,11 +19,18 @@ class TranslationMiddleware(LocaleMiddleware):
     """
 
     def process_request(self, request):
+        """
+        Enable the default language if a supported db language can not
+        be resolved.
+        """
         check_path = self.is_language_prefix_patterns_used()
 
         #replace the original language detection method
         language = get_language_from_request(
             request, check_path=check_path)
+        
+        if language not in get_supported_languages():
+            language = get_default_language()
 
         translation.activate(language)
         request.LANGUAGE_CODE = translation.get_language()
@@ -31,16 +38,20 @@ class TranslationMiddleware(LocaleMiddleware):
         
     def process_response(self, request, response):
         """
-        Override the original method to redirect permanently.
+        Override the original method to redirect permanently and facilitate 
+        the :func.`translations.urls.translation_patterns` URL redirection
+        logic.
         """
         
         language = translation.get_language()
         check_path = self.is_language_prefix_patterns_used()
         default = get_default_language()
         
+        #i18n_patterns
         if (response.status_code == 404 and
                 not translation.get_language_from_path(request.path_info)
                     and check_path):
+
             urlconf = getattr(request, 'urlconf', None)
             language_path = '/%s%s' % (language, request.path_info)
             if settings.APPEND_SLASH and not language_path.endswith('/'):
@@ -51,6 +62,7 @@ class TranslationMiddleware(LocaleMiddleware):
                     request.is_secure() and 'https' or 'http',
                     request.get_host(), language, request.get_full_path())
                 return HttpResponsePermanentRedirect(language_url)
+        #translation_patterns
         elif (response.status_code == 404 and
               check_path and default == language and
             request.path_info.startswith('/%s/' % default)):
