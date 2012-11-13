@@ -43,6 +43,10 @@ class Language(models.Model):
         utils._default = self.name
 
     def save(self, *args, **kwargs):
+        """
+        Override the default save() method to ensure that one and only
+        one default language exists.
+        """
         try:
             #not using get_default_language() here, as this method might return
             #the settings.LANGUAGE_CODE setting if no db languages exist
@@ -73,6 +77,9 @@ class Language(models.Model):
             super(Language, self).delete()
 
     def __unicode__(self):
+        """
+        Return the display name for this language.
+        """
         return get_language_info(self.name)['name']
 
 class Translatable(models.Model):
@@ -124,27 +131,36 @@ class Translatable(models.Model):
         
     def __unicode__(self):
         """
-        Default implementation returns the unicode representation of
+        This default implementation returns the unicode representation of
         the related :class:`translations.models.Translation` object
         for the current language.
         """
         return self.get_name()
         
 class Translation(models.Model):
+    """
+    This model represents the translations of a 
+    :class:`translations.models.Translatable` model. There always exist
+    a ``ForeignKey`` to the Translatable object, and the reverse relation
+    should be named `'translations'`.
+    """
     language = models.ForeignKey(Language)
     
     class Meta:
         abstract = True
         
 def pre_delete_language(sender, instance, using, **kwargs):
-    #admin actions make sure the default will not be deleted,
-    #but this is still here to prevent 3rd party code from accidentily deleting the default language  
+    """
+    **Signal receiver**. Although admin actions make sure the default language will 
+    not be deleted, this receiver is still here to prevent 3rd party code from 
+    accidentally deleting the default language
+    """  
     if instance.default:
         raise Exception(_("Cannot delete the default language"))
 
 def post_delete_language(sender, instance, using, **kwargs):
     """
-    Update the supported languages to ensure that 
+    **Signal receiver**. Update the supported languages to ensure that 
     a 404 will be raised when requesting the language's urls
     """
     #generate supported languages in case they are not initialized

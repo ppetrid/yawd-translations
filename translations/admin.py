@@ -8,6 +8,10 @@ from forms import BaseTranslationFormSet
 from views import TranslationMessagesView, GenerateTranslationMessagesView, TranslationMessagesEditView
 
 class TranslationInline(admin.StackedInline):
+    """
+    This is a custom inline class that will display one form for each available
+    language.
+    """
     template = 'admin/edit_inline/translatable-inline.html'
     
     def __init__(self, *args, **kwargs):
@@ -17,12 +21,19 @@ class TranslationInline(admin.StackedInline):
         self.formset = modelformset_factory(self.model, formset=BaseTranslationFormSet)
     
     def formfield_for_dbfield(self, db_field, **kwargs):
+        """
+        Override the ``formfield_for_dbfield()`` method to make the `'language'`
+        property of the :class:`translations.models.Translation` object hidden.
+        """
         formfield = super(TranslationInline, self).formfield_for_dbfield(db_field, **kwargs)
         if db_field.name  == 'language':
             formfield.widget = HiddenInput()
         return formfield
 
 class LanguageAdmin(admin.ModelAdmin):
+    """
+    The default admin form for the :class:`translations,models.Language` model.
+    """
     list_display = ('name', 'default')
     actions=['delete_selected_lang']
     fields = ('name', 'image', 'default')
@@ -41,11 +52,16 @@ class LanguageAdmin(admin.ModelAdmin):
         return my_urls + urls
     
     def has_delete_permission(self, request, obj=None):
-        if obj and obj.default:
-            return False
-        return True
+        """
+        Check if language is the default and deny deletion access if True.
+        """
+        return False if obj and obj.default else True
 
     def get_actions(self, request):
+        """
+        Remove the original `delete action` that allows a user to delete
+        a default ``Language``.
+        """
         actions = super(LanguageAdmin, self).get_actions(request)
         del actions['delete_selected']
         return actions
@@ -59,6 +75,10 @@ class LanguageAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
     def delete_selected_lang(self, request, queryset):
+        """
+        This delete action will ensure that the default language will not
+        be deleted.
+        """
         queryset = queryset.exclude(default=True)
         count = queryset.count()
         queryset.delete()
