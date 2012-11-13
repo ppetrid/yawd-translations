@@ -19,6 +19,3 @@ class MultilingualPageTranslation(Translation):
 
     def __unicode__(self):
         return u'%s' % self.title
-        
-    
-    
