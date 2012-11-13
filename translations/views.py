@@ -45,9 +45,9 @@ class GenerateTranslationMessagesView(TemplateView):
         
         #delete files if requested
         if request.GET.get('delete', 0):
-            for file_ in os.listdir(self.po_path):
-                if file_.endswith('.po') or file_.endswith('.mo'):
-                    os.unlink(os.path.join(self.po_path, file_))
+            for f in os.listdir(self.po_path):
+                if f.endswith('.po') or f.endswith('.mo'):
+                    os.unlink(os.path.join(self.po_path, f))
         
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
@@ -62,7 +62,6 @@ class GenerateTranslationMessagesView(TemplateView):
         #locate the current directory
         curr_dir = os.curdir
         domain_dict = {'django' : ['html','txt'], 'djangojs' : ['js']}
-        was_empty = True
         
         lang_files = []
         #iterate over the installed applications and copy their po files
@@ -76,10 +75,13 @@ class GenerateTranslationMessagesView(TemplateView):
                 continue
             
             original_path = os.path.join(mod_root, 'locale', to_locale(self.language.name), 'LC_MESSAGES')
+            delete_at_the_end = False
+            
             if not os.path.exists(original_path):
                 if not app_name.startswith('django.contrib'):
                     try: #try to create language directory for the app
                         os.makedirs(original_path)
+                        delete_at_the_end = True
                     except:
                         continue
                 else:
@@ -87,21 +89,17 @@ class GenerateTranslationMessagesView(TemplateView):
             
             if not app_name.startswith('django.contrib'):
                 #move original files to a temp file
-                #and copy the project-wise files to the appropriate directory 
                 for file_ in list(os.listdir(original_path)):
-                    if file_.endswith('.po'):
-                        application_file = os.path.join(original_path, file_)
-                        yawdtrans_file = os.path.join(self.po_path, '%s-%s' % (app_name, file_))
-                        
-                        #backup original file
-                        shutil.copy2(application_file, 
-                            os.path.join(original_path, 'original-%s' % file_))
-                        
-                        #replace original file with the yawd version
-                        #so that it gets updated
-                        if os.path.exists(yawdtrans_file):
-                            was_empty = False
-                            shutil.copy2(yawdtrans_file, application_file)
+                        if file_.endswith('.po'):
+                            shutil.copy2(os.path.join(original_path, file_), os.path.join(original_path, 'original-%s' % file_))
+                
+                #copy the project-wise files to the appropriate directory
+                if not self.request.GET.get('delete', 0):
+                    #replace original file with the yawd version
+                    #so that it gets updated
+                    for f in list(os.listdir(self.po_path)):
+                        if f.startswith('%s-' % app_name) and f.endswith('.po'):
+                            shutil.copy2(os.path.join(self.po_path, f), os.path.join(original_path, f.replace('%s-' % app_name, '')))  
 
                 #makemessages excluding the core applications
                 os.chdir(mod_root)
@@ -109,16 +107,16 @@ class GenerateTranslationMessagesView(TemplateView):
                     make_messages(locale=self.locale, domain=key, extensions=handle_extensions(value), verbosity=0)
                 os.chdir(curr_dir)
 
-            #iterate over the availale po files
+            #iterate over the application po files
             for file_ in list(os.listdir(original_path)):
                 if not file_.startswith('original-') and file_.endswith('.po'):
-
                     original_file_path = os.path.join(original_path, file_)
                     file_name = '%s-%s' % (app_name, file_)
                     
                     #copy file
-                    if self.request.GET.get('delete', 0) or not app_name.startswith('django.contrib'):
-                        shutil.copy2(original_file_path, os.path.join(self.po_path, file_name))
+                    copy_path = os.path.join(self.po_path, file_name)
+                    if self.request.GET.get('delete', 0) or not (app_name.startswith('django.contrib') and os.path.exists(copy_path)):
+                        shutil.copy2(original_file_path, copy_path)
                     
                     #unlink updated file
                     if not app_name.startswith('django.contrib'):
@@ -127,33 +125,33 @@ class GenerateTranslationMessagesView(TemplateView):
                     lang_files.append(file_name)
             
             if not app_name.startswith('django.contrib'):
-                for file_ in os.listdir(original_path):
-                    #put back the original application files
-                    if file_.startswith('original-') and file_.endswith('.po'):
-                        shutil.move(os.path.join(original_path, file_), os.path.join(original_path, file_.replace('original-','')))
-        
+                if delete_at_the_end:
+                    shutil.rmtree(os.path.join(mod_root, 'locale', to_locale(self.language.name)))
+                else:
+                    for file_ in os.listdir(original_path):
+                        #put back the original application files
+                        if file_.startswith('original-') and file_.endswith('.po'):
+                            shutil.move(os.path.join(original_path, file_), os.path.join(original_path, file_.replace('original-','')))
+                
         #concat all messages in a single .po file for each domain
         for domain in domain_dict:
             file_name = '%s.po' % domain
             uni_django_path = os.path.join(self.po_path, file_name)
-            
+
             if os.path.exists(uni_django_path):
                 os.unlink(uni_django_path)
-            
-            source_files = []
-            for file_ in lang_files:
-                if file_.endswith(file_name):
-                    source_files.append(os.path.join(self.po_path, file_))
-            
-            #merge .po files
-            concat_message_files(source_files, uni_django_path)
-            #compile django.po
-            if not has_bom(uni_django_path):
-                compile_message_file(uni_django_path)
+
+            source_files = [os.path.join(self.po_path, f) for f in lang_files if f.endswith(file_name)]
+            if source_files:
+                #merge .po files
+                concat_message_files(source_files, uni_django_path)
+                #compile django.po
+                if not has_bom(uni_django_path):
+                    compile_message_file(uni_django_path)
 
         #reset the cached translation messages so that
         #we do not need to restart the web server
-        reset_translations(self.language.name, was_empty)
+        reset_translations(self.language.name)
         
         context['lang_files'] = sorted(lang_files)
         return context

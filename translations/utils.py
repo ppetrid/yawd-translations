@@ -119,12 +119,10 @@ def concat_message_files(files, fn):
 		cmd = 'msgcat --use-first -o "$djangotargetpo" $djangosourcepo'
 	os.system(cmd)
 	
-def reset_translations(lang, was_empty=False):
+def reset_translations(lang):
 	"""
 	Empty django's internal translations dictionary when a message translation
 	changes or the translations list is regenerated.
-	
-	If was_empty is set to True, the dictionary of mo files will also empty.
 	"""
 	from django.utils import translation
 	from django.utils.translation import trans_real
@@ -142,9 +140,3 @@ def reset_translations(lang, was_empty=False):
 	current_lang = translation.get_language()
 	if current_lang == lang:
 		translation.activate(current_lang)
-
-	if was_empty:
-		from django.utils.translation.trans_real import _accepted
-		normalized = locale.locale_alias.get(to_locale(lang, True))
-		if normalized in _accepted:
-			del _accepted[normalized]
