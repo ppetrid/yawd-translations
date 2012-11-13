@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 from django.forms import HiddenInput
 from django.forms.models import modelformset_factory
 from django.utils.translation import ungettext, ugettext_lazy
-from models import Language
+from models import Language, Translation
 from forms import BaseTranslationFormSet
 from views import TranslationMessagesView, GenerateTranslationMessagesView, TranslationMessagesEditView
 
@@ -12,6 +12,8 @@ class TranslationInline(admin.StackedInline):
     
     def __init__(self, *args, **kwargs):
         super(TranslationInline, self).__init__(*args, **kwargs)
+        if not issubclass(self.model, Translation):
+            raise Exception('This inline should only be used with Translation models')
         self.formset = modelformset_factory(self.model, formset=BaseTranslationFormSet)
     
     def formfield_for_dbfield(self, db_field, **kwargs):
