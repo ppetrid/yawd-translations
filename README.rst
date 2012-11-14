@@ -22,8 +22,6 @@ The application includes the following tools:
 
 * A `context processor` to access available languages in your templates and a simple `template tag` to easily switch between the available translations of a page in the front-end website.
 
-:ref:`changelog`
-
 Usage and demo
 ==============
 
