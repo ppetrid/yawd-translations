@@ -1,4 +1,4 @@
-.. changelog_
+.. _changelog:
 
 Changelog
 +++++++++
