@@ -1,40 +1,32 @@
-yawd-elfinder, a file management solution for Django
-====================================================
+yawd-translations, create multilingual django websites
+======================================================
 
-`elFinder`_ is a jQuery web file manager providing standard features -such as 
-uploading, moving, renaming files etc-, as well as a set of advanced features
-such as image resizing/cropping/rotation and archive file creation.
+`yawd-translations <http://yawd.eu/open-source-projects/yawd-translations/>`_
+provides a set of tools for creating multilingual websites with
+`django <http://www.djangoproject.com>`_.
 
-**yawd-elfinder** provides a fully-featured python/django implementation for the 
-elfinder connector v.2. A custom Model Field (tied to a nice form widget) 
-is also provided. Therefore, you can easily manage your files 
-through the Django admin interface, assign them to model fields and access
-the file URLs in your Django templates.
+The application includes the following tools:
 
-**yawd-elfinder** can manage local files but also use Django filesystem storages to
-connect to remote filesystems. A set of django options allows control over
-file and directory permissions, accepted mime types, max file sizes etc. 
+* Manage the website's installed Languages through the admin interface
+* Generate translation messages (``makemessages`` and ``compilemessages``) for all installed applications and defined languages using the admin interface (no need to restart the web server).
+* Translatable db models API
+* A custom `admin inline <https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.InlineModelAdmin>`_  to manage db translations
+* A custom middleware to replace `django.middleware.locale.LocaleMiddleware <https://docs.djangoproject.com/en/dev/topics/i18n/translation/#how-django-discovers-language-preference>`_ and achieve the following:
 
-The current version is 0.90.00, use the github version for the latest fixes.
+	* Change the way django detects language preference and use the db default language (set through the admin interface)
+	* Redirects to language-dependant URLs are permanent (301) and not temporary (302). See `django ticket #19277 <https://code.djangoproject.com/ticket/19277>`_ and `The impact of Django page redirects to SEO - Fixing internationalized pattern URLs <http://blog.yawd.eu/2012/impact-django-page-redirects-seo/>`_
+	
+* A patterns function (that behaves pretty-much like django's own `i18n_patterns() <https://docs.djangoproject.com/en/dev/topics/i18n/translation/#language-prefix-in-url-patterns>`_ does) to achieve the following:
+
+	* Match root URL paths as default language URLs: If your default language is English (``en``), Django middleware would redirect your pages to their ``/en/`` equivalent (e.g. your homepage would be `http://example.com/en/` and all requests to `http://example.com/` would be redirected to `http://example.com/en/`) since the i18n_patterns will not match the ``/`` URL as the english homepage. The custom patterns function implements the exact opposite, which is a common practice to web development. Therefore `http://example.com/` will be matched as the real permalink (instead of `http://example.com/en/`). For non-default languages, the custom patterns function behaves like ``i18n_patters()`` does.
+
+* A `context processor` to access available languages in your templates and a simple `template tag` to easily switch between the available translations of a page in the front-end website.
 
 :ref:`changelog`
-
-.. _elfinder: http://elfinder.org
 
 Usage and demo
 ==============
 
-See the yawd-elfinder documentation for information on 
-`how to install the demo <http://yawd-elfinder.readthedocs.org/en/latest/installation.html#example-project>`_
-and `use yawd-elfinder <http://yawd-elfinder.readthedocs.org/en/latest/usage.html>`_.
-
-Screenshots
-===========
-
-The admin widget
-
-.. image:: http://static.yawd.eu/www/yawd-elfinder-widget.jpg
-
-Elfinder in action
-
-.. image:: http://static.yawd.eu/www/yawd-elfinder-rotate.jpg 
+See the yawd-translations documentation for information on 
+`how to install the demo <http://yawd-translations.readthedocs.org/en/latest/demo.html>`_
+and `use yawd-translations <http://yawd-translations.readthedocs.org/en/latest/usage.html>`_.
