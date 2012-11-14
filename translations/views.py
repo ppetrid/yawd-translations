@@ -117,7 +117,7 @@ class GenerateTranslationMessagesView(TemplateView):
                     copy_path = os.path.join(self.po_path, file_name)
                     if self.request.GET.get('delete', 0) or not (app_name.startswith('django.contrib') and os.path.exists(copy_path)):
                         shutil.copy(original_file_path, copy_path)
-                        os.chmod(copy_path, 0775)
+                        os.chmod(copy_path, 0664)
                     
                     #unlink updated file
                     if not app_name.startswith('django.contrib'):
