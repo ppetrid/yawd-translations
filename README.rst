@@ -14,7 +14,7 @@ The application includes the following tools:
 * A custom middleware to replace `django.middleware.locale.LocaleMiddleware <https://docs.djangoproject.com/en/dev/topics/i18n/translation/#how-django-discovers-language-preference>`_ and achieve the following:
 
 	* Change the way django detects language preference and use the db default language (set through the admin interface)
-	* Redirects to language-dependant URLs are permanent (301) and not temporary (302). See `django ticket #19277 <https://code.djangoproject.com/ticket/19277>`_ and `The impact of Django page redirects to SEO - Fixing internationalized pattern URLs <http://blog.yawd.eu/2012/impact-django-page-redirects-seo/>`_
+	* Redirects to language-dependant URLs are permanent (301) and not temporary (302).
 	
 * A patterns function (that behaves pretty-much like django's own `i18n_patterns() <https://docs.djangoproject.com/en/dev/topics/i18n/translation/#language-prefix-in-url-patterns>`_ does) to achieve the following:
 

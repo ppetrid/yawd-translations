@@ -362,10 +362,11 @@ to the `'/whatever/'` URL to `'/en/whatever/'`, while when using the latter it w
 do the exact opposite redirection.
 
 
-Another minor enchancement of the Translations middleware against the original
+Another enchancement of the Translations middleware against the original
 is that it uses permanent redirects (301) instead of temporary (302) when redirecting
-URLs. For more information on this, read this 
-`blog post <http://blog.yawd.eu/2012/impact-django-page-redirects-seo/>`_.
+URLs. For more information on this, see 
+`django ticket #19277 <https://code.djangoproject.com/ticket/19277>`_ and 
+`The impact of Django page redirects to SEO - Fixing internationalized pattern URLs <http://blog.yawd.eu/2012/impact-django-page-redirects-seo/>`_.
 
 In theory you do not need to have `yawd-translations` in your installed applications
 to use this middleware. If you do not want to build upon yawd-translations' db Language 
