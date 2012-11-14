@@ -91,7 +91,7 @@ class GenerateTranslationMessagesView(TemplateView):
                 #move original files to a temp file
                 for file_ in list(os.listdir(original_path)):
                         if file_.endswith('.po'):
-                            shutil.copy2(os.path.join(original_path, file_), os.path.join(original_path, 'original-%s' % file_))
+                            shutil.copy(os.path.join(original_path, file_), os.path.join(original_path, 'original-%s' % file_))
                 
                 #copy the project-wise files to the appropriate directory
                 if not self.request.GET.get('delete', 0):
@@ -99,7 +99,7 @@ class GenerateTranslationMessagesView(TemplateView):
                     #so that it gets updated
                     for f in list(os.listdir(self.po_path)):
                         if f.startswith('%s-' % app_name) and f.endswith('.po'):
-                            shutil.copy2(os.path.join(self.po_path, f), os.path.join(original_path, f.replace('%s-' % app_name, '')))  
+                            shutil.copy(os.path.join(self.po_path, f), os.path.join(original_path, f.replace('%s-' % app_name, '')))  
 
                 #makemessages excluding the core applications
                 os.chdir(mod_root)
@@ -116,7 +116,8 @@ class GenerateTranslationMessagesView(TemplateView):
                     #copy file
                     copy_path = os.path.join(self.po_path, file_name)
                     if self.request.GET.get('delete', 0) or not (app_name.startswith('django.contrib') and os.path.exists(copy_path)):
-                        shutil.copy2(original_file_path, copy_path)
+                        shutil.copy(original_file_path, copy_path)
+                        os.chmod(copy_path, 0775)
                     
                     #unlink updated file
                     if not app_name.startswith('django.contrib'):
