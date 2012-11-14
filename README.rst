@@ -25,6 +25,5 @@ The application includes the following tools:
 Usage and demo
 ==============
 
-See the yawd-translations documentation for information on 
-`how to install the demo <http://yawd-translations.readthedocs.org/en/latest/demo.html>`_
-and `use yawd-translations <http://yawd-translations.readthedocs.org/en/latest/usage.html>`_.
+See the `yawd-translations documentation <http://yawd-translations.readthedocs.org/en/latest/>`_ 
+for information on how to install the demo and use yawd-translations.
