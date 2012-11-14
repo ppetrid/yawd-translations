@@ -6,7 +6,7 @@ from django.core.management.commands.compilemessages import has_bom
 from django.core.management.commands.makemessages import make_messages, handle_extensions
 from django.http import Http404
 from django.http import HttpResponseRedirect
-from django.utils.encoding import force_unicode
+from django.utils.encoding import smart_str
 from django.utils.importlib import import_module
 from django.utils.text import capfirst
 from django.utils.translation import to_locale, ugettext as _
@@ -275,7 +275,7 @@ class TranslationMessagesEditView(FormView):
             file_path = os.path.join(self.po_path, self.po_file)
             
             file_ = open(file_path, 'w+')
-            file_.write(form.cleaned_data['po_content'])
+            file_.write(smart_str(form.cleaned_data['po_content']))
             file_.close()
             
             domain = 'django.po' if self.po_file.endswith('django.po') else 'djangojs.po'
