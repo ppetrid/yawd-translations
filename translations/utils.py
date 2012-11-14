@@ -101,6 +101,7 @@ def compile_message_file(fn):
 	else:
 		cmd = 'msgfmt --check-format -o "$djangocompilemo" "$djangocompilepo"'
 	os.system(cmd)
+	os.chmod(pf + '.mo', 0664)
 	
 def concat_message_files(files, fn):
 	"""
@@ -118,6 +119,7 @@ def concat_message_files(files, fn):
 	else:
 		cmd = 'msgcat --use-first -o "$djangotargetpo" $djangosourcepo'
 	os.system(cmd)
+	os.chmod(fn, 0664)
 	
 def reset_translations(lang):
 	"""
