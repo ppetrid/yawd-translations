@@ -7,7 +7,8 @@ from django.utils.translation import get_language
 
 def translation_patterns(prefix, *args):
     """
-    Custom pattern declaration that works like the i18n_patterns.
+    Custom pattern declaration that works like the i18n_patterns but
+    matches root urls if the default language is active.
     Adds the language code prefix to every URL pattern within this
     function.
     """

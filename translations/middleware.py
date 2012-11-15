@@ -6,7 +6,6 @@ from django.middleware.locale import LocaleMiddleware
 from django.utils.cache import patch_vary_headers
 from django.utils import translation
 from utils import get_default_language, get_language_from_request, get_supported_languages
-from urls import TranslationRegexURLResolver
 
 class TranslationMiddleware(LocaleMiddleware):
     """
@@ -23,16 +22,14 @@ class TranslationMiddleware(LocaleMiddleware):
         Enable the default language if a supported db language can not
         be resolved.
         """
-        check_path = self.is_language_prefix_patterns_used()
-
         #replace the original language detection method
         language = get_language_from_request(
-            request, check_path=check_path)
+            request, check_path=self.is_language_prefix_patterns_used())
         
         if language not in get_supported_languages():
             language = get_default_language()
 
-        translation.activate(language)
+        translation.activate(language)        
         request.LANGUAGE_CODE = translation.get_language()
         
         
@@ -42,49 +39,30 @@ class TranslationMiddleware(LocaleMiddleware):
         the :func.`translations.urls.translation_patterns` URL redirection
         logic.
         """
-        
         language = translation.get_language()
-        check_path = self.is_language_prefix_patterns_used()
         default = get_default_language()
         
-        #i18n_patterns
+        #redirect to the original default language URL
+        #if language prefix is used
         if (response.status_code == 404 and
-                not translation.get_language_from_path(request.path_info)
-                    and check_path):
-
-            urlconf = getattr(request, 'urlconf', None)
-            language_path = '/%s%s' % (language, request.path_info)
-            if settings.APPEND_SLASH and not language_path.endswith('/'):
-                language_path = language_path + '/'
-
-            if is_valid_path(language_path, urlconf):
-                language_url = "%s://%s/%s%s" % (
-                    request.is_secure() and 'https' or 'http',
-                    request.get_host(), language, request.get_full_path())
-                return HttpResponsePermanentRedirect(language_url)
-        #translation_patterns
-        elif (response.status_code == 404 and
-              check_path and default == language and
+            self.is_language_prefix_patterns_used() and default == language and 
             request.path_info.startswith('/%s/' % default)):
-            #redirect to the original default language URL
-            #if translation_patterns is used 
+            
             urlconf = getattr(request, 'urlconf', None)
             language_path = re.sub(r'^/%s/' % default, '/', request.path_info)
             if settings.APPEND_SLASH and not language_path.endswith('/'):
                 language_path = language_path + '/'
 
-            if language_path != '/%s/' % default and is_valid_path(language_path, urlconf):
+            if is_valid_path(language_path, urlconf):
                 #we use a permanent redirect here.
                 #when changing the default language we need to let the world know
                 #that our links have permanently changed and transfer our seo juice 
                 #to the new url
-                #http://seo-hacker.com/301-302-redirect-affect-seo/
+                #http://blog.yawd.eu/2012/impact-django-page-redirects-seo/
                 return  HttpResponsePermanentRedirect("%s://%s/%s" % (
                     request.is_secure() and 'https' or 'http',
                     request.get_host(), re.sub(r'^/%s/' % default, '', request.get_full_path())))
-
-        translation.deactivate()
-
+        
         patch_vary_headers(response, ('Accept-Language',))
         if 'Content-Language' not in response:
             response['Content-Language'] = language

@@ -359,8 +359,7 @@ The Translations middleware can be used in conjuction with both
 and :ref:`translation_patterns <translation-patterns>`. When using the first 
 (and the default language is english for example) it will redirect all calls
 to the `'/whatever/'` URL to `'/en/whatever/'`, while when using the latter it will
-do the exact opposite redirection.
-
+*not* redirect URLs.
 
 Another enchancement of the Translations middleware against the original
 is that it uses permanent redirects (301) instead of temporary (302) when redirecting
