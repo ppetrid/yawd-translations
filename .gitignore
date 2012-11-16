@@ -2,3 +2,5 @@
 /.pydevproject
 /.metadata
 /.settings
+/yawd_translations.egg-info
+/dist
