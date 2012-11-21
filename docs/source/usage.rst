@@ -283,6 +283,18 @@ To generate a filtered list of translations it is always a good idea to  use the
 	which you will not be able to use while not using the API. The :ref:`translation-urls`
 	could still be used if your models provide a ``get_absolute_url()``
 	method.
+	
+.. note::
+	If when using the Translatable API along with the django admin 
+	site your translations appear as ``None`` in changelist views 
+	(or you see a `not translated in 'en-us'` message), you should 
+	change the value of the default ``LANGUAGE_CODE`` django setting
+	to the code of a language defined in your Language model 
+	(usually just change it from 'en-us' to 'en'). This happens if
+	your admin site itself is not multilingual (not declared with the
+	:func:`translations.urls.translation_patterns` method) and the
+	default admin language is not among the languages by 
+	yawd-translations.
 
 .. _custom-admin-inline:
 
