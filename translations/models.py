@@ -103,16 +103,16 @@ class Translatable(models.Model):
         object's display name for a given ``language``.
         """
         #use the current language if not explicitly set
-        translation = unicode(self.translation(language_id))
+        translation = self.translation(language_id)
         if translation:
-            return translation
+            return unicode(translation)
 
         #attempt to show default translation
-        translation = unicode(self.translation(get_default_language()))  
+        translation = self.translation(utils.get_default_language())  
         if translation:
-            return u'%s (%s %s)' % (translation, _('not translated in'), language_id)
+            return u'%s (%s %s)' % (translation, _('not translated in'), language_id if language_id else get_language())
         else:
-            return u'%s #%s (%s %s)' % (self._meta.verbose_name, self.pk, _('not translated in'), language_id)
+            return u'%s #%s (%s %s)' % (self._meta.verbose_name, self.pk, _('not translated in'), language_id if language_id else get_language())
 
     def translation(self, language_id=None):
         """
