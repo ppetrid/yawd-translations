@@ -1,2 +1,2 @@
-yawd-elfinder
-Django>=1.4
+yawd-elfinder>=0.90.01,<=0.90.02
+Django>=1.4,<=1.5
