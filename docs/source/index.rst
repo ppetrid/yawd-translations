@@ -31,6 +31,15 @@ The application includes the following tools:
 
 * A `context processor` to access available languages in your templates and a simple `template tag` to easily switch between the available translations of a page in the front-end website.
 
+Django version compatibility
+++++++++++++++++++++++++++++
+
+The following yawd-translations versions might also work with other Django 
+releases (older or newer), however such combinations are NOT tested.
+
+| **yawd-translations v0.5.0:** `Django v.1.4.1 <https://www.djangoproject.com/m/releases/1.4/Django-1.4.1.tar.gz>`_
+| **yawd-translations v0.5.1:** `Django v.1.4.5 <https://www.djangoproject.com/m/releases/1.4/Django-1.4.5.tar.gz>`_
+
 Contents:
 
 .. toctree::
