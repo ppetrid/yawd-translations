@@ -22,6 +22,16 @@ The application includes the following tools:
 
 * A `context processor` to access available languages in your templates and a simple `template tag` to easily switch between the available translations of a page in the front-end website.
 
+
+.. note::
+	yawd-translations v0.5.1 is the last version intended to work with
+	Django 1.4. The current master is actively developed under Django 1.5
+	and does NOT work with older Django releases. For those still using
+	Django 1.4, you can checkout the ``0.5.x`` branch or use the yawd-translations
+	v0.5.1 pypi package. New features will not be backported to the ``0.5.x``
+	branch. Since many of us run production systems tied to Django 1.4, both
+	v0.5.1 and the latest documentation will be online on readthedocs.org. 
+
 Usage and demo
 ==============
 
