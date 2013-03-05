@@ -3,6 +3,11 @@
 Changelog
 +++++++++
 
+v.0.6.0, ?
+==========
+
+* Follow changes for Django1.5 support
+
 v.0.5.1, 2013.03.05
 ===================
 

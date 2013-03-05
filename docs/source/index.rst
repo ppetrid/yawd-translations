@@ -39,6 +39,7 @@ releases (older or newer), however such combinations are NOT tested.
 
 | **yawd-translations v0.5.0:** `Django v.1.4.1 <https://www.djangoproject.com/m/releases/1.4/Django-1.4.1.tar.gz>`_
 | **yawd-translations v0.5.1:** `Django v.1.4.5 <https://www.djangoproject.com/m/releases/1.4/Django-1.4.5.tar.gz>`_
+| **yawd-translations v0.6.0:** `Django v.1.5.0 <https://www.djangoproject.com/download/1.5/tarball/>`_
 
 Contents:
 
