@@ -23,7 +23,4 @@ setup(
         'Topic :: Software Development :: Libraries'
         ],
       include_package_data = True,
-      install_requires = [
-        "git+git://github.com/yawd/yawd-elfinder.git@master#egg=yawd-elfinder",
-        ],
 )
