@@ -24,6 +24,6 @@ setup(
         ],
       include_package_data = True,
       install_requires = [
-        "yawd-elfinder>=0.90.02",
+        "git+git://github.com/yawd/yawd-elfinder.git@master#egg=yawd-elfinder",
         ],
 )
