@@ -35,5 +35,5 @@ The application includes the following tools:
 Usage and demo
 ==============
 
-See the `yawd-translations documentation <http://yawd-translations.readthedocs.org/en/latest/>`_ 
+See the `yawd-translations v0.5.1 documentation <http://yawd-translations.readthedocs.org/en/v0.5.1/>`_ 
 for information on how to install the demo and use yawd-translations.
