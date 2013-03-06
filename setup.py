@@ -23,6 +23,6 @@ setup(
         ],
       include_package_data = True,
       install_requires = [
-        "yawd-elfinder>=0.90.01,<=0.90.02",
+        "yawd-elfinder>=0.90.01,<0.91.00",
         ],
 )
