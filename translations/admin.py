@@ -37,6 +37,8 @@ class LanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'default')
     actions=['delete_selected_lang']
     fields = ('name', 'image', 'default')
+    #this is used only when yawd-admin is being used, ignored otherwise
+    title_icon = 'icon-flag'
     
     def get_urls(self):
         """
