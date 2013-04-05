@@ -471,13 +471,21 @@ method. If no url exists for a certain language it will link to the homepage
 		@models.permalink
 		get_absolute_url(self):
 			return ('my-view', (), {'pk' : self.pk })
-			
+
 If the context object variable is an instance of :class:`translations.models.Translatable`
 and it has no ``get_absolute_url()`` method, the tag will search for a
 ``get_absolute_url()`` implementation in the related 
 :class:`translations.models.Translation` and use that instead. Failing that, it
 will return the home url for that language.
 
-You can see the ``translation_urls`` template tag in action in the 
+.. note::
+
+	If the argument is a string, the tag will assume it's a URL and prepend
+	the language prefix to the string (e.g. ``{% translation_urls 'contact' %}``
+	will return `'\de\contact\'` for the german language.
+
+You can replace the tag's html output by overriding the
+``language_switcher.html`` template.
+
+To see the ``translation_urls`` template tag in action take a look at the
 :ref:`demo-project`.
-   
