@@ -34,9 +34,9 @@ class LanguageAdmin(admin.ModelAdmin):
     """
     The default admin form for the :class:`translations,models.Language` model.
     """
-    list_display = ('name', 'default')
+    list_display = ('name', 'default', 'order')
     actions=['delete_selected_lang']
-    fields = ('name', 'image', 'default')
+    fields = ('name', 'image', 'default', 'order')
     #this is used only when yawd-admin is being used, ignored otherwise
     title_icon = 'icon-flag'
     

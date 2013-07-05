@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import clear_url_caches
 from django.db import models
 from django.db.models.signals import pre_delete, post_delete
@@ -27,11 +26,12 @@ class Language(models.Model):
     name = models.CharField(choices=sorted(settings.LANGUAGES, key=lambda name: name[1]), max_length=7, verbose_name=ugettext_lazy('Name'), primary_key=True)
     image = ElfinderField(optionset='image', start_path='languages', verbose_name=ugettext_lazy('Image'), blank=True, null=True)
     default = models.BooleanField(default=False, verbose_name=ugettext_lazy('Default'))
+    order = models.IntegerField(default=0, verbose_name=ugettext_lazy('Order'))
 
     class Meta:
         verbose_name = ugettext_lazy("Language")
         verbose_name_plural = ugettext_lazy("Languages")
-        ordering = ['name']
+        ordering = ['order', 'name']
         permissions = (
             ("view_translations", "Can see translation messages for a language"),
             ("edit_translations", "Can edit the language's translation messages"),
