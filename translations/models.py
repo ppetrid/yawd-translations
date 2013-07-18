@@ -136,7 +136,17 @@ class Translatable(models.Model):
         for the current language.
         """
         return self.get_name()
-        
+
+    def save(self, *args, **kwargs):
+        """
+        Clear prefetched translations
+        """
+        ret = super(Translatable, self).save(*args, **kwargs)
+        if hasattr(self, '_prefetched_objects_cache') and 'translations' in self._prefetched_objects_cache:
+            del self._prefetched_objects_cache['translations']
+        return ret
+
+
 class Translation(models.Model):
     """
     This model represents the translations of a 
