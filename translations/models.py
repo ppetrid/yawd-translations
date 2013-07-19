@@ -4,9 +4,25 @@ from django.db import models
 from django.db.models.signals import pre_delete, post_delete
 from django.utils.encoding import smart_str 
 from django.utils.translation import get_language, get_language_info, ugettext_lazy, ugettext as _
-from elfinder.fields import ElfinderField
 from managers import TranslatableManager
 import utils
+
+import os
+
+USE_ELFINDER = False
+try:
+    from elfinder.fields import ElfinderField
+    USE_ELFINDER = 'elfinder' in settings.INSTALLED_APPS
+except ImportError:
+    USE_ELFINDER = False
+
+if USE_ELFINDER:
+    make_imagefield = lambda: ElfinderField(optionset='image', start_path='languages', verbose_name=ugettext_lazy('Image'), blank=True, null=True)
+else:
+    def _upload_to(instance, filename):
+        ext = os.path.splitext(filename)[-1]
+        return os.path.join('languages', '%s%s' % (instance.name, ext))
+    make_imagefield = lambda: models.ImageField(upload_to = _upload_to, verbose_name=ugettext_lazy('Image'), blank=True, null=True)
 
 class Language(models.Model):
     """
@@ -24,7 +40,7 @@ class Language(models.Model):
     
     #Use name as primary key to avoid joins when retrieving Translation objects
     name = models.CharField(choices=sorted(settings.LANGUAGES, key=lambda name: name[1]), max_length=7, verbose_name=ugettext_lazy('Name'), primary_key=True)
-    image = ElfinderField(optionset='image', start_path='languages', verbose_name=ugettext_lazy('Image'), blank=True, null=True)
+    image = make_imagefield()
     default = models.BooleanField(default=False, verbose_name=ugettext_lazy('Default'))
     order = models.IntegerField(default=0, verbose_name=ugettext_lazy('Order'))
 
