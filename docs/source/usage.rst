@@ -146,6 +146,10 @@ project setting. In your ``settings.py`` file:
 		'/path/to/the/translations/folder/',
 		...possibly more directories
 	)
+	
+.. note::
+	In some cases, depending on the deployment method of your web application, 
+	the '/path/to/the/translations/folder/'	may need to be an absolute path.
 
 .. hint::
 
@@ -179,7 +183,7 @@ possible new translation strings added to the code since your last scan.
 
 	yawd-translations will generate translation messages only for applications having
 	a `locale` directory in their source code. More information can be found on the
-	django documentation `here <file:///home/ppetrid/work/freelance/yawdcms/workspace/yawd-translations/docs/build/html/usage.html#the-languages-model>`_.
+	django documentation `here <https://docs.djangoproject.com/en/dev/topics/i18n/translation/#how-django-discovers-translations>`_.
 	
 You can control which users and groups can view or edit the translation messages
 (e.g. through the admin interface). yawd-translations provides two custom permissions
