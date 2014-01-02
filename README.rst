@@ -37,3 +37,9 @@ Usage and demo
 
 See the `yawd-translations documentation <http://yawd-translations.readthedocs.org/en/latest/>`_ 
 for information on how to install the demo and use yawd-translations.
+
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/yawd/yawd-translations/trend.png
+   :alt: Bitdeli badge
+   :target: https://bitdeli.com/free
+
